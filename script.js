@@ -4,12 +4,13 @@
   "use strict";
 
   const OFFICIAL_REG_URL = "https://www.stephenakintayo.com/manchester";
+  const FORMSPREE_URL = "https://formspree.io/f/xvzyvgoe";
   const VIDEO_URL = ""; // Optional: put a YouTube embed URL or full URL here.
 
   const navToggle = document.querySelector("[data-nav-toggle]");
   const navMenu = document.querySelector("[data-nav-menu]");
 
-  const mobileNavQuery = window.matchMedia("(max-width: 720px)");
+  const mobileNavQuery = window.matchMedia("(max-width: 960px)");
 
   function setNavOpen(open) {
     if (!navMenu) return;
@@ -164,17 +165,43 @@
     openModal(modals.video);
   });
 
-  // Reserve seat form handling (client-side only)
+  // Registration form -> Formspree (AJAX) + success modal
   const form = document.getElementById("registrationForm");
+  const submitBtn = form?.querySelector("[data-submit-btn]");
+  const formStatus = document.getElementById("formStatus");
   const reserveModalName = document.getElementById("reserveModalName");
   const reserveModalCompany = document.getElementById("reserveModalCompany");
   const reserveModalEmailLink = document.getElementById("reserveModalEmailLink");
   const reserveModalOfficialLink = document.getElementById("reserveModalOfficialLink");
 
+  const submitBtnDefaultLabel = submitBtn?.textContent || "Submit registration";
+
   function setFieldError(fieldName, message) {
     const el = document.querySelector(`[data-error-for="${fieldName}"]`);
     if (!el) return;
     el.textContent = message || "";
+    const input = form?.querySelector(`[name="${fieldName}"]`);
+    if (input) input.setAttribute("aria-invalid", message ? "true" : "false");
+  }
+
+  function setFormStatus(message, type) {
+    if (!formStatus) return;
+    if (!message) {
+      formStatus.hidden = true;
+      formStatus.textContent = "";
+      formStatus.removeAttribute("data-type");
+      return;
+    }
+    formStatus.hidden = false;
+    formStatus.textContent = message;
+    formStatus.dataset.type = type || "error";
+  }
+
+  function setSubmitting(isSubmitting) {
+    if (!submitBtn) return;
+    submitBtn.disabled = isSubmitting;
+    submitBtn.textContent = isSubmitting ? "Submitting..." : submitBtnDefaultLabel;
+    submitBtn.setAttribute("aria-busy", isSubmitting ? "true" : "false");
   }
 
   function getFieldValue(name) {
@@ -183,25 +210,10 @@
   }
 
   function validateEmail(email) {
-    // Reasonable email validation for UI (not RFC-perfect).
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
 
-  form?.addEventListener("submit", (e) => {
-    e.preventDefault();
-
-    const fields = {
-      fullName: getFieldValue("fullName"),
-      email: getFieldValue("email"),
-      phone: getFieldValue("phone"),
-      company: getFieldValue("company"),
-      industry: getFieldValue("industry"),
-      country: getFieldValue("country"),
-    };
-
-    // Clear previous errors.
-    Object.keys(fields).forEach((key) => setFieldError(key, ""));
-
+  function validateFields(fields) {
     const errors = {};
     if (!fields.fullName || fields.fullName.length < 2) errors.fullName = "Please enter your full name.";
     if (!fields.email || !validateEmail(fields.email)) errors.email = "Please enter a valid email address.";
@@ -210,18 +222,61 @@
     if (!fields.industry) errors.industry = "Please enter your industry.";
     if (!fields.country) errors.country = "Please enter your country.";
 
-    const hasErrors = Object.keys(errors).length > 0;
-    if (hasErrors) {
-      Object.entries(errors).forEach(([key, msg]) => setFieldError(key, msg));
-      return;
+    const consent = form?.querySelector("#consent");
+    if (consent && !consent.checked) {
+      errors.consent = "Please agree to be contacted about your registration.";
     }
 
-    // Populate modal summary.
+    return errors;
+  }
+
+  async function submitToFormspree(fields) {
+    const formData = new FormData(form);
+    formData.set("_replyto", fields.email);
+    formData.set("consent", form?.querySelector("#consent")?.checked ? "Yes" : "No");
+
+    const response = await fetch(FORMSPREE_URL, {
+      method: "POST",
+      body: formData,
+      headers: {
+        Accept: "application/json",
+      },
+    });
+
+    let payload = null;
+    try {
+      payload = await response.json();
+    } catch {
+      payload = null;
+    }
+
+    if (!response.ok) {
+      const message =
+        (payload && typeof payload.error === "string" && payload.error) ||
+        "We could not send your registration. Please try again or use the official link.";
+      const err = new Error(message);
+      if (payload && Array.isArray(payload.errors)) {
+        err.formspreeErrors = payload.errors;
+      }
+      throw err;
+    }
+
+    return payload;
+  }
+
+  function applyFormspreeFieldErrors(errors) {
+    errors.forEach((item) => {
+      const field = item.field || item.name;
+      const message = item.message || "Please check this field.";
+      if (field) setFieldError(field, message);
+    });
+  }
+
+  function showSuccessModal(fields) {
     if (reserveModalName) reserveModalName.textContent = fields.fullName;
     if (reserveModalCompany) reserveModalCompany.textContent = fields.company;
     if (reserveModalOfficialLink) reserveModalOfficialLink.href = OFFICIAL_REG_URL;
 
-    // Build mailto link with summary for convenience.
     const subject = "Manchester Meet & Greet - Reservation Request";
     const body = [
       "Hello Stephen Akintayo Foundation,",
@@ -239,16 +294,59 @@
       `Industry: ${fields.industry}`,
       `Country: ${fields.country}`,
       "",
-      "Please advise on next steps.",
-      "",
       "Thank you,",
       fields.fullName,
     ].join("\n");
 
-    const emailLink = `mailto:products@stephenakintayo.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    if (reserveModalEmailLink) reserveModalEmailLink.href = emailLink;
+    if (reserveModalEmailLink) {
+      reserveModalEmailLink.href = `mailto:products@stephenakintayo.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    }
 
     openModal(modals.reserve);
+  }
+
+  form?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    setFormStatus("");
+
+    const fields = {
+      fullName: getFieldValue("fullName"),
+      email: getFieldValue("email"),
+      phone: getFieldValue("phone"),
+      company: getFieldValue("company"),
+      industry: getFieldValue("industry"),
+      country: getFieldValue("country"),
+    };
+
+    ["fullName", "email", "phone", "company", "industry", "country"].forEach((key) => {
+      setFieldError(key, "");
+    });
+
+    const errors = validateFields(fields);
+    if (Object.keys(errors).length > 0) {
+      Object.entries(errors).forEach(([key, msg]) => setFieldError(key, msg));
+      if (errors.consent) {
+        setFormStatus(errors.consent, "error");
+      }
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      await submitToFormspree(fields);
+      form.reset();
+      const consent = form.querySelector("#consent");
+      if (consent) consent.checked = true;
+      showSuccessModal(fields);
+    } catch (err) {
+      if (err.formspreeErrors) {
+        applyFormspreeFieldErrors(err.formspreeErrors);
+      }
+      setFormStatus(err.message || "Something went wrong. Please try again.", "error");
+    } finally {
+      setSubmitting(false);
+    }
   });
 })();
 

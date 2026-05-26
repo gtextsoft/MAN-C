@@ -21,9 +21,16 @@
 
     <header class="site-header" data-header>
       <div class="container header-inner">
-        <a class="brand" href="#overview" aria-label="Stephen Akintayo Foundation">
-          <div class="brand-title">Stephen Akintayo Foundation</div>
-          <div class="brand-subtitle">Manchester Meet &amp; Greet</div>
+        <a class="brand" href="#overview" aria-label="Stephen Akintayo Foundation — Manchester Meet and Greet">
+          <img
+            class="brand-logo"
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTrRE1o6ry2cqC39h4arLCFHD7JYa5Q6GCh7A&amp;s"
+            alt=""
+            width="120"
+            height="40"
+            decoding="async"
+          />
+          <span class="brand-subtitle">Manchester Meet &amp; Greet</span>
         </a>
 
         <button class="nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="site-nav" data-nav-toggle>
@@ -286,7 +293,25 @@
 
           <div class="registration-grid">
             <div class="card form-card">
-              <form id="registrationForm" novalidate>
+              <form
+                id="registrationForm"
+                action="https://formspree.io/f/xvzyvgoe"
+                method="POST"
+                novalidate
+              >
+                <input type="hidden" name="_subject" value="Manchester Meet &amp; Greet - Registration" />
+                <input type="hidden" name="event" value="Manchester CEOs &amp; Founders' Meet &amp; Greet" />
+                <input
+                  type="text"
+                  name="_gotcha"
+                  class="form-honeypot"
+                  tabindex="-1"
+                  autocomplete="off"
+                  aria-hidden="true"
+                />
+
+                <div id="formStatus" class="form-status" role="alert" aria-live="polite" hidden></div>
+
                 <div class="field-grid">
                   <div class="field">
                     <label for="fullName">Full Name *</label>
@@ -326,18 +351,19 @@
                 </div>
 
                 <div class="consent">
-                  <input id="consent" name="consent" type="checkbox" checked />
+                  <input id="consent" name="consent" type="checkbox" value="yes" checked />
                   <label for="consent">
                     I agree to be contacted about my registration.
                   </label>
                 </div>
+                <div class="field-error" data-error-for="consent" aria-live="polite"></div>
 
                 <div class="form-actions">
-                  <button class="btn btn-primary btn-full" type="submit">
+                  <button class="btn btn-primary btn-full" type="submit" data-submit-btn>
                     Submit registration
                   </button>
                   <div class="form-footnote">
-                    By submitting, you'll be guided to the official registration link.
+                    Your details are sent securely. You will then complete registration on the official link.
                   </div>
                 </div>
               </form>
