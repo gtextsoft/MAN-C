@@ -1433,3 +1433,45 @@ input::placeholder {
     scroll-behavior: auto;
   }
 }
+
+/* Thank you page */
+.thank-you-page {
+  padding: 3rem 0 4rem;
+  background: var(--white);
+  border-bottom: 1px solid var(--line);
+  min-height: calc(100vh - var(--header-h) - 8rem);
+}
+
+.thank-you-inner {
+  max-width: 32rem;
+}
+
+.thank-you-lead {
+  margin-bottom: 1.75rem;
+}
+
+.thank-you-card {
+  margin-bottom: 1.75rem;
+  padding: 1.25rem 1.5rem;
+}
+
+.thank-you-actions {
+  display: grid;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.thank-you-note {
+  margin: 0;
+}
+
+@media (max-width: 720px) {
+  .thank-you-page {
+    padding: 2rem 0 3rem;
+    min-height: auto;
+  }
+
+  .thank-you-inner h1 {
+    font-size: 1.5rem;
+  }
+}

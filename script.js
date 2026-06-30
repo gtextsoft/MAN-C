@@ -5,6 +5,7 @@
 
   const OFFICIAL_REG_URL = "https://www.stephenakintayo.com/manchester";
   const FORMSPREE_URL = "https://formspree.io/f/xvzyvgoe";
+  const THANK_YOU_URL = "thank-you.html";
   const VIDEO_URL = ""; // Optional: put a YouTube embed URL or full URL here.
 
   const navToggle = document.querySelector("[data-nav-toggle]");
@@ -93,7 +94,6 @@
 
   // Modals
   const modals = {
-    reserve: document.getElementById("reserveModal"),
     vip: document.getElementById("vipModal"),
     video: document.getElementById("videoModal"),
   };
@@ -169,10 +169,6 @@
   const form = document.getElementById("registrationForm");
   const submitBtn = form?.querySelector("[data-submit-btn]");
   const formStatus = document.getElementById("formStatus");
-  const reserveModalName = document.getElementById("reserveModalName");
-  const reserveModalCompany = document.getElementById("reserveModalCompany");
-  const reserveModalEmailLink = document.getElementById("reserveModalEmailLink");
-  const reserveModalOfficialLink = document.getElementById("reserveModalOfficialLink");
 
   const submitBtnDefaultLabel = submitBtn?.textContent || "Submit registration";
 
@@ -272,37 +268,12 @@
     });
   }
 
-  function showSuccessModal(fields) {
-    if (reserveModalName) reserveModalName.textContent = fields.fullName;
-    if (reserveModalCompany) reserveModalCompany.textContent = fields.company;
-    if (reserveModalOfficialLink) reserveModalOfficialLink.href = OFFICIAL_REG_URL;
-
-    const subject = "Manchester Meet & Greet - Reservation Request";
-    const body = [
-      "Hello Stephen Akintayo Foundation,",
-      "",
-      "I would like to reserve a seat for:",
-      "Manchester CEOs & Founders' Meet & Greet",
-      "Saturday, 26th July - 6:00 PM (BST)",
-      "Manchester, United Kingdom",
-      "",
-      "Attendee details:",
-      `Name: ${fields.fullName}`,
-      `Email: ${fields.email}`,
-      `Phone: ${fields.phone}`,
-      `Company/Business: ${fields.company}`,
-      `Industry: ${fields.industry}`,
-      `Country: ${fields.country}`,
-      "",
-      "Thank you,",
-      fields.fullName,
-    ].join("\n");
-
-    if (reserveModalEmailLink) {
-      reserveModalEmailLink.href = `mailto:products@stephenakintayo.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    }
-
-    openModal(modals.reserve);
+  function redirectToThankYou(fields) {
+    const params = new URLSearchParams();
+    if (fields.fullName) params.set("name", fields.fullName);
+    if (fields.company) params.set("company", fields.company);
+    const query = params.toString();
+    window.location.href = query ? `${THANK_YOU_URL}?${query}` : THANK_YOU_URL;
   }
 
   form?.addEventListener("submit", async (e) => {
@@ -335,10 +306,7 @@
 
     try {
       await submitToFormspree(fields);
-      form.reset();
-      const consent = form.querySelector("#consent");
-      if (consent) consent.checked = true;
-      showSuccessModal(fields);
+      redirectToThankYou(fields);
     } catch (err) {
       if (err.formspreeErrors) {
         applyFormspreeFieldErrors(err.formspreeErrors);
