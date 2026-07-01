@@ -3,7 +3,7 @@
 (() => {
   "use strict";
 
-  const COMMUNITY_URL = "https://www.stephenakintayo.com";
+  const COMMUNITY_URL = "https://chat.whatsapp.com/GkCFBTkAW8H683lJYbLcK0";
 
   const params = new URLSearchParams(window.location.search);
   const name = params.get("name");
