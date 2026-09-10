@@ -4,8 +4,6 @@
   "use strict";
 
   const OFFICIAL_REG_URL = "https://www.stephenakintayo.com/manchester";
-  const FORMSPREE_URL = "https://formspree.io/f/xvzyvgoe";
-  const THANK_YOU_URL = "thank-you.html";
   const VIDEO_URL = ""; // Optional: put a YouTube embed URL or full URL here.
 
   const navToggle = document.querySelector("[data-nav-toggle]");
@@ -165,7 +163,7 @@
     openModal(modals.video);
   });
 
-  // Registration form -> Formspree (AJAX) + success modal
+  // Validate locally, then let Collector handle the HTML POST and redirect.
   const form = document.getElementById("registrationForm");
   const submitBtn = form?.querySelector("[data-submit-btn]");
   const formStatus = document.getElementById("formStatus");
@@ -226,58 +224,7 @@
     return errors;
   }
 
-  async function submitToFormspree(fields) {
-    const formData = new FormData(form);
-    formData.set("_replyto", fields.email);
-    formData.set("consent", form?.querySelector("#consent")?.checked ? "Yes" : "No");
-
-    const response = await fetch(FORMSPREE_URL, {
-      method: "POST",
-      body: formData,
-      headers: {
-        Accept: "application/json",
-      },
-    });
-
-    let payload = null;
-    try {
-      payload = await response.json();
-    } catch {
-      payload = null;
-    }
-
-    if (!response.ok) {
-      const message =
-        (payload && typeof payload.error === "string" && payload.error) ||
-        "We could not send your registration. Please try again or use the official link.";
-      const err = new Error(message);
-      if (payload && Array.isArray(payload.errors)) {
-        err.formspreeErrors = payload.errors;
-      }
-      throw err;
-    }
-
-    return payload;
-  }
-
-  function applyFormspreeFieldErrors(errors) {
-    errors.forEach((item) => {
-      const field = item.field || item.name;
-      const message = item.message || "Please check this field.";
-      if (field) setFieldError(field, message);
-    });
-  }
-
-  function redirectToThankYou(fields) {
-    const params = new URLSearchParams();
-    if (fields.fullName) params.set("name", fields.fullName);
-    if (fields.company) params.set("company", fields.company);
-    const query = params.toString();
-    window.location.href = query ? `${THANK_YOU_URL}?${query}` : THANK_YOU_URL;
-  }
-
-  form?.addEventListener("submit", async (e) => {
-    e.preventDefault();
+  form?.addEventListener("submit", (e) => {
     setFormStatus("");
 
     const fields = {
@@ -289,12 +236,13 @@
       country: getFieldValue("country"),
     };
 
-    ["fullName", "email", "phone", "company", "industry", "country"].forEach((key) => {
+    ["fullName", "email", "phone", "company", "industry", "country", "consent"].forEach((key) => {
       setFieldError(key, "");
     });
 
     const errors = validateFields(fields);
     if (Object.keys(errors).length > 0) {
+      e.preventDefault();
       Object.entries(errors).forEach(([key, msg]) => setFieldError(key, msg));
       if (errors.consent) {
         setFormStatus(errors.consent, "error");
@@ -303,18 +251,8 @@
     }
 
     setSubmitting(true);
-
-    try {
-      await submitToFormspree(fields);
-      redirectToThankYou(fields);
-    } catch (err) {
-      if (err.formspreeErrors) {
-        applyFormspreeFieldErrors(err.formspreeErrors);
-      }
-      setFormStatus(err.message || "Something went wrong. Please try again.", "error");
-    } finally {
-      setSubmitting(false);
-    }
   });
+
+  window.addEventListener("pageshow", () => setSubmitting(false));
 })();
 
