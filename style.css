@@ -118,9 +118,9 @@ code {
 
 .brand-logo {
   display: block;
-  height: 1.75rem;
-  width: auto;
-  max-width: 4.75rem;
+  height: 2.5rem;
+  width: 2.5rem;
+  max-width: none;
   object-fit: contain;
   flex-shrink: 0;
 }
@@ -169,8 +169,8 @@ code {
   }
 
   .brand-logo {
-    height: 2rem;
-    max-width: 5.25rem;
+    height: 2.75rem;
+    width: 2.75rem;
   }
 
   .brand-subtitle {
@@ -1347,8 +1347,8 @@ input::placeholder {
   }
 
   .brand-logo {
-    height: 1.625rem;
-    max-width: 4.25rem;
+    height: 1.75rem;
+    width: 1.75rem;
   }
 
   h1 {
