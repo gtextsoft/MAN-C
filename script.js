@@ -86,5 +86,100 @@
       });
     });
   }
+
+  // Validate locally, then let Collector handle the HTML POST and redirect.
+  const form = document.getElementById("registrationForm");
+  const submitBtn = form?.querySelector("[data-submit-btn]");
+  const formStatus = document.getElementById("formStatus");
+  const submitBtnDefaultLabel = submitBtn?.textContent || "Reserve your seat";
+
+  function setFieldError(fieldName, message) {
+    const el = document.querySelector(`[data-error-for="${fieldName}"]`);
+    if (!el) return;
+    el.textContent = message || "";
+    const input = form?.querySelector(`[name="${fieldName}"]`);
+    if (input) input.setAttribute("aria-invalid", message ? "true" : "false");
+  }
+
+  function setFormStatus(message, type) {
+    if (!formStatus) return;
+    if (!message) {
+      formStatus.hidden = true;
+      formStatus.textContent = "";
+      formStatus.removeAttribute("data-type");
+      return;
+    }
+    formStatus.hidden = false;
+    formStatus.textContent = message;
+    formStatus.dataset.type = type || "error";
+  }
+
+  function setSubmitting(isSubmitting) {
+    if (!submitBtn) return;
+    submitBtn.disabled = isSubmitting;
+    submitBtn.textContent = isSubmitting ? "Reserving your seat..." : submitBtnDefaultLabel;
+    submitBtn.setAttribute("aria-busy", isSubmitting ? "true" : "false");
+  }
+
+  function getFieldValue(name) {
+    const input = form?.querySelector(`[name="${name}"]`);
+    return (input?.value || "").trim();
+  }
+
+  function validateEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
+  function validateFields(fields) {
+    const errors = {};
+    if (!fields.fullName || fields.fullName.length < 2) errors.fullName = "Enter your full name.";
+    if (!fields.email || !validateEmail(fields.email)) errors.email = "Enter a valid email address.";
+    if (!fields.phone || fields.phone.length < 7) errors.phone = "Enter a valid phone number.";
+    if (!fields.company) errors.company = "Enter your company or business name.";
+    if (!fields.industry) errors.industry = "Enter your industry.";
+    if (!fields.country) errors.country = "Enter your country.";
+
+    const consent = form?.querySelector("#consent");
+    if (consent && !consent.checked) {
+      errors.consent = "Agree to be contacted about your registration.";
+    }
+
+    return errors;
+  }
+
+  form?.addEventListener("submit", (e) => {
+    setFormStatus("");
+
+    const fields = {
+      fullName: getFieldValue("fullName"),
+      email: getFieldValue("email"),
+      phone: getFieldValue("phone"),
+      company: getFieldValue("company"),
+      industry: getFieldValue("industry"),
+      country: getFieldValue("country"),
+    };
+
+    ["fullName", "email", "phone", "company", "industry", "country", "consent"].forEach((key) => {
+      setFieldError(key, "");
+    });
+
+    const errors = validateFields(fields);
+    const errorKeys = Object.keys(errors);
+    if (errorKeys.length > 0) {
+      e.preventDefault();
+      errorKeys.forEach((key) => setFieldError(key, errors[key]));
+      const firstInvalid = form.querySelector('[aria-invalid="true"]');
+      firstInvalid?.focus();
+      if (errors.consent && !firstInvalid) {
+        setFormStatus(errors.consent, "error");
+        form.querySelector("#consent")?.focus();
+      }
+      return;
+    }
+
+    setSubmitting(true);
+  });
+
+  window.addEventListener("pageshow", () => setSubmitting(false));
 })();
 
