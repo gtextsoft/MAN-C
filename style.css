@@ -829,9 +829,9 @@ input::placeholder {
   gap: 1.5rem;
 }
 
-.lead-magnet,
-.video-card,
-.vip-card {
+.lead-magnet {
+  max-width: 32rem;
+  margin-inline: auto;
   padding: 1.5rem;
   height: auto;
 }

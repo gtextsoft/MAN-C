@@ -3,8 +3,6 @@
 (() => {
   "use strict";
 
-  const VIDEO_URL = ""; // Optional: put a YouTube embed URL or full URL here.
-
   const navToggle = document.querySelector("[data-nav-toggle]");
   const navMenu = document.querySelector("[data-nav-menu]");
 
@@ -88,78 +86,5 @@
       });
     });
   }
-
-  // Modals
-  const modals = {
-    vip: document.getElementById("vipModal"),
-    video: document.getElementById("videoModal"),
-  };
-
-  function openModal(modal) {
-    if (!modal) return;
-    modal.hidden = false;
-    document.body.style.overflow = "hidden";
-    const firstFocusable =
-      modal.querySelector("button, a[href], input, select, textarea, [tabindex]:not([tabindex='-1'])") || modal;
-    firstFocusable.focus?.();
-  }
-
-  function closeModal(modal) {
-    if (!modal) return;
-    modal.hidden = true;
-    document.body.style.overflow = "";
-  }
-
-  function wireModalClose(modal) {
-    if (!modal) return;
-    modal.addEventListener("click", (e) => {
-      const target = e.target;
-      if (target && target.matches("[data-modal-close]")) closeModal(modal);
-    });
-
-    window.addEventListener("keydown", (e) => {
-      if (e.key !== "Escape") return;
-      if (!modal.hidden) closeModal(modal);
-    });
-  }
-
-  Object.values(modals).forEach(wireModalClose);
-
-  // Open VIP modal
-  document.querySelector("[data-open-vip]")?.addEventListener("click", () => {
-    openModal(modals.vip);
-  });
-
-  // Open Video modal
-  document.querySelector("[data-open-video]")?.addEventListener("click", () => {
-    const container = document.getElementById("videoContainer");
-    const fallback = document.getElementById("videoFallback");
-    if (container) container.innerHTML = "";
-
-    if (VIDEO_URL && container) {
-      // If a YouTube watch URL was provided, convert to embed.
-      let embedSrc = VIDEO_URL;
-      if (/youtube\.com\/watch\?v=/.test(VIDEO_URL)) {
-        const id = new URL(VIDEO_URL).searchParams.get("v");
-        if (id) embedSrc = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
-      } else if (/youtu\.be\//.test(VIDEO_URL)) {
-        const id = VIDEO_URL.split("youtu.be/")[1]?.split("?")[0];
-        if (id) embedSrc = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
-      }
-
-      const iframe = document.createElement("iframe");
-      iframe.width = "560";
-      iframe.height = "315";
-      iframe.src = embedSrc;
-      iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
-      iframe.allowFullscreen = true;
-      container.appendChild(iframe);
-      if (fallback) fallback.hidden = true;
-    } else if (fallback) {
-      fallback.hidden = false;
-    }
-
-    openModal(modals.video);
-  });
 })();
 

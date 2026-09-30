@@ -306,10 +306,10 @@
         </div>
       </section>
 
-      <section class="section alt-section" aria-label="Bonus sections">
-        <div class="container three-col">
+      <section class="section alt-section" aria-labelledby="guide-title">
+        <div class="container">
           <div class="card lead-magnet">
-            <h3 class="card-title">Bonus guide for registrants</h3>
+            <h3 class="card-title" id="guide-title">Bonus guide for registrants</h3>
             <p class="prose">
               "How to Build Powerful Business Relationships That Increase Your Income &amp; Influence"
             </p>
@@ -319,33 +319,6 @@
             <div class="fineprint">
               Join the community to receive the guide.
             </div>
-          </div>
-
-          <div class="card video-card">
-            <h3 class="card-title">Personal invitation</h3>
-            <p class="prose">
-              Watch a short message about why this event was created and how attending can help you unlock new opportunities.
-            </p>
-            <button class="btn btn-secondary btn-full" type="button" data-open-video>
-              Watch invitation video
-            </button>
-          </div>
-
-          <div class="card vip-card">
-            <h3 class="card-title">VIP access</h3>
-            <p class="prose">
-              Upgrade to VIP access for premium networking opportunities and exclusive interactions.
-            </p>
-            <ul class="bullets">
-              <li>Priority access</li>
-              <li>Premium seating</li>
-              <li>Exclusive networking session</li>
-              <li>VIP photo opportunities</li>
-              <li>Closer interaction with speakers and business leaders</li>
-            </ul>
-            <button class="btn btn-primary btn-full" type="button" data-open-vip>
-              Upgrade to VIP
-            </button>
           </div>
         </div>
       </section>
@@ -479,56 +452,6 @@
         </div>
       </div>
     </footer>
-
-    <!-- VIP Modal -->
-    <div class="modal" id="vipModal" role="dialog" aria-modal="true" aria-labelledby="vipModalTitle" hidden>
-      <div class="modal-overlay" data-modal-close tabindex="-1" aria-hidden="true"></div>
-      <div class="modal-dialog modal-md">
-        <div class="modal-header">
-          <div>
-            <div class="modal-kicker">VIP access</div>
-            <h3 class="modal-title" id="vipModalTitle">Upgrade to VIP</h3>
-          </div>
-          <button class="icon-button" type="button" aria-label="Close modal" data-modal-close>
-            <span aria-hidden="true">X</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <p class="prose">
-            VIP access offers priority networking, premium seating, and exclusive interactions.
-            To upgrade, complete the official registration and specify VIP in your message.
-          </p>
-        </div>
-        <div class="modal-actions">
-          <a class="btn btn-primary btn-full" href="https://www.stephenakintayo.com/manchester">Upgrade via Official Registration</a>
-          <a class="btn btn-secondary btn-full" href="mailto:products@stephenakintayo.com?subject=Manchester%20VIP%20Upgrade&body=Hello%20Stephen%20Akintayo%20Foundation%2C%0A%0AI%20would%20like%20to%20upgrade%20to%20VIP%20access%20for%20the%20Manchester%20CEOs%20%26%20Founders%E2%80%99%20Meet%20%26%20Greet.%0A%0AName%3A%20%0ACompany%3A%20%0APhone%3A%20%0A">
-            Email VIP Request
-          </a>
-        </div>
-      </div>
-    </div>
-
-    <!-- Video Modal -->
-    <div class="modal" id="videoModal" role="dialog" aria-modal="true" aria-labelledby="videoModalTitle" hidden>
-      <div class="modal-overlay" data-modal-close tabindex="-1" aria-hidden="true"></div>
-      <div class="modal-dialog modal-lg">
-        <div class="modal-header">
-          <div>
-            <div class="modal-kicker">Invitation video</div>
-            <h3 class="modal-title" id="videoModalTitle">A Personal Invitation from Dr. Stephen Akintayo</h3>
-          </div>
-          <button class="icon-button" type="button" aria-label="Close modal" data-modal-close>
-            <span aria-hidden="true">X</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <div id="videoContainer" class="video-container" aria-label="Video container"></div>
-          <p class="fineprint" id="videoFallback" hidden>
-            Video URL not set. Update <code>VIDEO_URL</code> in <code>script.js</code>.
-          </p>
-        </div>
-      </div>
-    </div>
 
     <script src="script.js"></script>
   </body>
